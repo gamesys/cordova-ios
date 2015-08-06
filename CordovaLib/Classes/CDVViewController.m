@@ -696,16 +696,18 @@
 
 - (void)webView:(UIWebView*)theWebView didFailLoadWithError:(NSError*)error
 {
-    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
+    if ([error code] != NSURLErrorCancelled) {
+        [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
 
-    NSString* message = [NSString stringWithFormat:@"Failed to load webpage with error: %@", [error localizedDescription]];
-    NSLog(@"%@", message);
+        NSString* message = [NSString stringWithFormat:@"Failed to load webpage with error: %@", [error localizedDescription]];
+        NSLog(@"%@", message);
 
-    NSURL* errorUrl = [self errorUrl];
-    if (errorUrl) {
-        errorUrl = [NSURL URLWithString:[NSString stringWithFormat:@"?error=%@", [message stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]] relativeToURL:errorUrl];
-        NSLog(@"%@", [errorUrl absoluteString]);
-        [theWebView loadRequest:[NSURLRequest requestWithURL:errorUrl]];
+        NSURL* errorUrl = [self errorUrl];
+        if (errorUrl) {
+            errorUrl = [NSURL URLWithString:[NSString stringWithFormat:@"?error=%@", [message stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]] relativeToURL:errorUrl];
+            NSLog(@"%@", [errorUrl absoluteString]);
+            [theWebView loadRequest:[NSURLRequest requestWithURL:errorUrl]];
+        }
     }
 }
 
